@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
                     chatId: data.chat_id,
                     content: data.message,
                     role: 'assistant',
-                    messageType: data.message_type || 'text',
+                    messageType: data.message_type ?? 'text',
                     metadata: data.metadata,
                 });
                 break;

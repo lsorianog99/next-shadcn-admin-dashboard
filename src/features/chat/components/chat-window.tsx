@@ -1,7 +1,7 @@
 'use client';
 
 import { useChatMessages, useSendMessage } from '../hooks/use-chat';
-import { ChatMessage } from './ChatMessage';
+import { ChatMessage } from './chat-message';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -60,7 +60,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
             <div className="border-b px-6 py-4">
                 <h3 className="font-semibold">Chat de WhatsApp</h3>
                 <p className="text-sm text-muted-foreground">
-                    {messages?.length || 0} mensajes
+                    {messages?.length ?? 0} mensajes
                 </p>
             </div>
 

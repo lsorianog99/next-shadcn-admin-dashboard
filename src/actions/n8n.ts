@@ -6,10 +6,7 @@ import { createClient } from '@/lib/supabase/server';
  * Server Actions para integración con n8n
  */
 
-interface N8NWebhookPayload {
-    event_type: string;
-    data: unknown;
-}
+
 
 /**
  * Envía un mensaje a n8n para procesamiento por el agente IA
@@ -92,8 +89,8 @@ export async function syncMessageFromN8N(params: {
                 chat_id: params.chatId,
                 content: params.content,
                 role: params.role,
-                message_type: params.messageType || 'text',
-                metadata: params.metadata || {},
+                message_type: params.messageType ?? 'text',
+                metadata: params.metadata ?? {},
             })
             .select()
             .single();
@@ -126,7 +123,7 @@ export async function logWebhook(params: {
             event_type: params.event_type,
             payload: params.payload as never,
             status: params.status,
-            error_message: params.error_message || null,
+            error_message: params.error_message ?? null,
         });
 
         return { success: true };

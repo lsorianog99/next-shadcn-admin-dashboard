@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
-import type { Chat, Message, ChatWithLastMessage } from '../types';
+import type { Message, ChatWithLastMessage } from '../types';
 import { useEffect } from 'react';
 
 const supabase = createClient();
@@ -61,7 +61,7 @@ export function useChatMessages(chatId: string | null) {
                 .order('created_at', { ascending: true });
 
             if (error) throw error;
-            return data || [];
+            return data ?? [];
         },
         enabled: !!chatId,
     });

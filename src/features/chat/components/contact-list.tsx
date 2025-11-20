@@ -26,7 +26,7 @@ export function ContactList({
 
     const filteredChats = chats.filter(
         (chat) =>
-            (chat.contact_name?.toLowerCase() || '').includes(
+            (chat.contact_name?.toLowerCase() ?? '').includes(
                 searchQuery.toLowerCase()
             ) ||
             chat.whatsapp_phone.includes(searchQuery)
@@ -66,7 +66,7 @@ export function ContactList({
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <p className="font-medium truncate">
-                                                    {chat.contact_name || chat.whatsapp_phone}
+                                                    {chat.contact_name ?? chat.whatsapp_phone}
                                                 </p>
                                                 <StatusBadge status={chat.status} />
                                             </div>

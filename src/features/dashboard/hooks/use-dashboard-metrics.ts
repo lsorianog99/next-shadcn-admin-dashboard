@@ -2,13 +2,11 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
-import type { Database } from '@/types/database.types';
+
 
 const supabase = createClient();
 
-type Quote = Database['public']['Tables']['quotes']['Row'];
-type Product = Database['public']['Tables']['products']['Row'];
-type QuoteItem = Database['public']['Tables']['quote_items']['Row'];
+
 
 export interface DashboardMetrics {
     newConversationsToday: number;
@@ -81,9 +79,9 @@ export function useDashboardMetrics() {
                 .eq('status', 'accepted')
                 .gte('accepted_at', today.toISOString());
 
-            const quotesAcceptedToday = quotesAcceptedTodayData?.length || 0;
+            const quotesAcceptedToday = quotesAcceptedTodayData?.length ?? 0;
             const totalRevenueToday =
-                quotesAcceptedTodayData?.reduce((sum, q) => sum + (q.total || 0), 0) ||
+                quotesAcceptedTodayData?.reduce((sum, q) => sum + (q.total ?? 0), 0) ??
                 0;
 
             // Cotizaciones aceptadas ayer
@@ -94,12 +92,12 @@ export function useDashboardMetrics() {
                 .gte('accepted_at', yesterday.toISOString())
                 .lt('accepted_at', today.toISOString());
 
-            const quotesAcceptedYesterday = quotesAcceptedYesterdayData?.length || 0;
+            const quotesAcceptedYesterday = quotesAcceptedYesterdayData?.length ?? 0;
             const totalRevenueYesterday =
                 quotesAcceptedYesterdayData?.reduce(
-                    (sum, q) => sum + (q.total || 0),
+                    (sum, q) => sum + (q.total ?? 0),
                     0
-                ) || 0;
+                ) ?? 0;
 
             // Tasa de conversión
             const { count: totalQuotesSent } = await supabase
@@ -114,7 +112,7 @@ export function useDashboardMetrics() {
 
             const conversionRate =
                 totalQuotesSent && totalQuotesSent > 0
-                    ? ((totalQuotesAccepted || 0) / totalQuotesSent) * 100
+                    ? ((totalQuotesAccepted ?? 0) / totalQuotesSent) * 100
                     : 0;
 
             // Conversaciones por día (últimos 30 días)
@@ -124,21 +122,21 @@ export function useDashboardMetrics() {
                 .gte('created_at', thirtyDaysAgo.toISOString())
                 .order('created_at', { ascending: true });
 
-            const conversationsByDay = groupByDay(chatsData || []);
+            const conversationsByDay = groupByDay(chatsData ?? []);
 
             // Cotizaciones por estado
             const { data: quotesData } = await supabase
                 .from('quotes')
                 .select('status');
 
-            const quotesByStatus = countByStatus(quotesData || []);
+            const quotesByStatus = countByStatus(quotesData ?? []);
 
             // Top 5 productos más cotizados
             const { data: quoteItemsData } = await supabase
                 .from('quote_items')
                 .select('product_sku, product_name');
 
-            const topQuotedProducts = getTopProducts(quoteItemsData || [], 5);
+            const topQuotedProducts = getTopProducts(quoteItemsData ?? [], 5);
 
             // Top 5 productos más vendidos
             const { data: soldItemsData } = await supabase
@@ -151,16 +149,16 @@ export function useDashboardMetrics() {
                             .from('quotes')
                             .select('id')
                             .eq('status', 'accepted')
-                    ).data?.map((q) => q.id) || []
+                    ).data?.map((q) => q.id) ?? []
                 );
 
-            const topSoldProducts = getTopSoldProducts(soldItemsData || [], 5);
+            const topSoldProducts = getTopSoldProducts(soldItemsData ?? [], 5);
 
             return {
-                newConversationsToday: newConversationsToday || 0,
-                newConversationsYesterday: newConversationsYesterday || 0,
-                quotesSentToday: quotesSentToday || 0,
-                quotesSentYesterday: quotesSentYesterday || 0,
+                newConversationsToday: newConversationsToday ?? 0,
+                newConversationsYesterday: newConversationsYesterday ?? 0,
+                quotesSentToday: quotesSentToday ?? 0,
+                quotesSentYesterday: quotesSentYesterday ?? 0,
                 quotesAcceptedToday,
                 quotesAcceptedYesterday,
                 totalRevenueToday,

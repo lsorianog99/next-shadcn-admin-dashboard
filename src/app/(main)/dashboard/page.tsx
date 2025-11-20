@@ -1,10 +1,10 @@
 'use client';
 
 import { useDashboardMetrics } from '@/features/dashboard/hooks/use-dashboard-metrics';
-import { MetricCard } from '@/features/dashboard/components/MetricCard';
-import { ConversationsChart } from '@/features/dashboard/components/ConversationsChart';
-import { QuotesStatusChart } from '@/features/dashboard/components/QuotesStatusChart';
-import { ProductsDistributionChart } from '@/features/dashboard/components/ProductsDistributionChart';
+import { MetricCard } from '@/features/dashboard/components/metric-card';
+import { ConversationsChart } from '@/features/dashboard/components/conversations-chart';
+import { QuotesStatusChart } from '@/features/dashboard/components/quotes-status-chart';
+import { ProductsDistributionChart } from '@/features/dashboard/components/products-distribution-chart';
 import {
   MessageSquare,
   FileText,

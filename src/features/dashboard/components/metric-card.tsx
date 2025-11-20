@@ -68,14 +68,17 @@ function formatValue(
     }
 }
 
-function getTrend(current: string | number, previous: number) {
+function getTrend(
+    current: string | number,
+    previous: number
+): { direction: 'up' | 'down' | 'neutral'; percentage: string | number } {
     const currentNum = typeof current === 'string' ? parseFloat(current) : current;
 
     if (previous === 0) {
         return {
             direction: currentNum > 0 ? 'up' : 'neutral',
             percentage: currentNum > 0 ? 100 : 0,
-        };
+        } as const;
     }
 
     const diff = currentNum - previous;
@@ -84,7 +87,7 @@ function getTrend(current: string | number, previous: number) {
     return {
         direction: diff > 0 ? 'up' : diff < 0 ? 'down' : 'neutral',
         percentage: percentage.toFixed(1),
-    };
+    } as const;
 }
 
 function getTrendColor(direction: 'up' | 'down' | 'neutral'): string {

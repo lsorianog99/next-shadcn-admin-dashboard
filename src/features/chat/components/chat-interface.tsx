@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useChats } from '../hooks/use-chat';
-import { ContactList } from './ContactList';
-import { ChatWindow } from './ChatWindow';
+import { ContactList } from './contact-list';
+import { ChatWindow } from './chat-window';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -20,7 +20,7 @@ export function ChatInterface() {
             {/* Sidebar - Lista de Contactos */}
             <div className="w-80 flex-shrink-0">
                 <ContactList
-                    chats={chats || []}
+                    chats={chats ?? []}
                     selectedChatId={selectedChatId}
                     onSelectChat={setSelectedChatId}
                 />
