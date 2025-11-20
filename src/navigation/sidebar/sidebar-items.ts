@@ -54,6 +54,12 @@ export const sidebarItems: NavGroup[] = [
         icon: LayoutDashboard,
       },
       {
+        title: "WhatsApp CRM",
+        url: "/dashboard",
+        icon: MessageSquare,
+        isNew: true,
+      },
+      {
         title: "CRM",
         url: "/dashboard/crm",
         icon: ChartBar,
@@ -101,9 +107,9 @@ export const sidebarItems: NavGroup[] = [
       },
       {
         title: "Chat",
-        url: "/dashboard/coming-soon",
+        url: "/dashboard/chat",
         icon: MessageSquare,
-        comingSoon: true,
+        isNew: true,
       },
       {
         title: "Calendar",

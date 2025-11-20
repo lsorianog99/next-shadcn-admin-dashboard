@@ -31,13 +31,31 @@ export function RegisterForm() {
   });
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    toast("You submitted the following values", {
-      description: (
-        <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+    try {
+      // Import dinámico del server action
+      const { registerWithEmail } = await import('@/actions/auth');
+
+      const result = await registerWithEmail(data.email, data.password);
+
+      if (!result.success) {
+        toast.error('Error al crear la cuenta', {
+          description: result.error,
+        });
+        return;
+      }
+
+      // Registro exitoso
+      toast.success('Cuenta creada exitosamente', {
+        description: result.message,
+      });
+
+      // Limpiar el formulario
+      form.reset();
+    } catch (error) {
+      toast.error('Error al crear la cuenta', {
+        description: error instanceof Error ? error.message : 'Ocurrió un error inesperado',
+      });
+    }
   };
 
   return (

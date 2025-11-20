@@ -9,6 +9,8 @@ import { getPreference } from "@/server/server-actions";
 import { PreferencesStoreProvider } from "@/stores/preferences/preferences-provider";
 import { THEME_MODE_VALUES, THEME_PRESET_VALUES, type ThemePreset, type ThemeMode } from "@/types/preferences/theme";
 
+import { ReactQueryProvider } from '@/providers/react-query-provider';
+
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -30,10 +32,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       suppressHydrationWarning
     >
       <body className={`${inter.className} min-h-screen antialiased`}>
-        <PreferencesStoreProvider themeMode={themeMode} themePreset={themePreset}>
-          {children}
-          <Toaster />
-        </PreferencesStoreProvider>
+        <ReactQueryProvider>
+          <PreferencesStoreProvider themeMode={themeMode} themePreset={themePreset}>
+            {children}
+            <Toaster />
+          </PreferencesStoreProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );
