@@ -14,7 +14,9 @@ const supabase = createClient();
  * Hook para obtener todas las conversaciones
  */
 export function useChats() {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["chats"],
     queryFn: async (): Promise<ChatWithLastMessage[]> => {
       const { data: chats, error } = await supabase
@@ -44,6 +46,42 @@ export function useChats() {
       return chatsWithMessages;
     },
   });
+
+  // Suscripción a cambios en chats (nuevos chats o actualizaciones de estado)
+  useEffect(() => {
+    const channel = supabase
+      .channel("chats-list-updates")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "chats",
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["chats"] });
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+        },
+        () => {
+          // Cuando llega un mensaje nuevo, actualizamos la lista para mostrar el preview y reordenar
+          queryClient.invalidateQueries({ queryKey: ["chats"] });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
 }
 
 /**
