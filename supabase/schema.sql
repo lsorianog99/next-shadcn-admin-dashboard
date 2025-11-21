@@ -288,5 +288,78 @@ INSERT INTO products (sku, name, description, price, cost, category, stock, is_a
 ('PROD-005', 'Webcam Logitech C920', 'Webcam Full HD 1080p con micrófono integrado', 1299.00, 900.00, 'Accesorios', 20, true)
 ON CONFLICT DO NOTHING;
 
+-- ============================================
+-- TABLA: whatsapp_instances
+-- Gestiona las instancias de conexión con Evolution API
+-- ============================================
+CREATE TABLE IF NOT EXISTS whatsapp_instances (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  instance_name VARCHAR(255) NOT NULL,
+  instance_id VARCHAR(255) NOT NULL UNIQUE, -- ID en Evolution API
+  api_key VARCHAR(255), -- API Key específica de la instancia si aplica
+  status VARCHAR(50) DEFAULT 'disconnected', -- connecting, connected, disconnected, qr_ready
+  qrcode TEXT, -- Base64 del QR actual
+  settings JSONB DEFAULT '{}', -- Configuración específica
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Trigger para updated_at
+CREATE TRIGGER update_whatsapp_instances_updated_at BEFORE UPDATE ON whatsapp_instances
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================
+-- TABLA: whatsapp_webhooks
+-- Log detallado de webhooks recibidos de Evolution API
+-- ============================================
+CREATE TABLE IF NOT EXISTS whatsapp_webhooks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  instance_id VARCHAR(255) REFERENCES whatsapp_instances(instance_id) ON DELETE SET NULL,
+  event_type VARCHAR(100) NOT NULL, -- messages.upsert, connection.update, etc.
+  payload JSONB NOT NULL,
+  processing_status VARCHAR(50) DEFAULT 'pending', -- pending, processed, failed
+  error_log TEXT,
+  processed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Índices para webhooks
+CREATE INDEX idx_whatsapp_webhooks_status ON whatsapp_webhooks(processing_status);
+CREATE INDEX idx_whatsapp_webhooks_created ON whatsapp_webhooks(created_at DESC);
+
+-- ============================================
+-- MODIFICACIONES A TABLAS EXISTENTES
+-- ============================================
+
+-- Add instance_id to chats if not exists (handled by CREATE TABLE if new, but for schema completeness)
+-- Note: In a fresh schema, we should add this column definition to the CREATE TABLE chats statement, 
+-- but appending ALTER here works for the single-file schema approach too.
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'chats' AND column_name = 'instance_id') THEN
+        ALTER TABLE chats ADD COLUMN instance_id VARCHAR(255) REFERENCES whatsapp_instances(instance_id) ON DELETE SET NULL;
+        CREATE INDEX idx_chats_instance ON chats(instance_id);
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'messages' AND column_name = 'whatsapp_message_id') THEN
+        ALTER TABLE messages ADD COLUMN whatsapp_message_id VARCHAR(255) UNIQUE;
+        CREATE INDEX idx_messages_whatsapp_id ON messages(whatsapp_message_id);
+    END IF;
+END $$;
+
+-- ============================================
+-- ROW LEVEL SECURITY (RLS) UPDATES
+-- ============================================
+
+ALTER TABLE whatsapp_instances ENABLE ROW LEVEL SECURITY;
+ALTER TABLE whatsapp_webhooks ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow all for authenticated users" ON whatsapp_instances
+  FOR ALL USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Allow all for authenticated users" ON whatsapp_webhooks
+  FOR ALL USING (auth.role() = 'authenticated');
+
 -- Comentario de finalización
-COMMENT ON SCHEMA public IS 'WhatsApp CRM Schema - Noviembre 2025 - Optimizado para cotizaciones automáticas con IA';
+COMMENT ON SCHEMA public IS 'WhatsApp CRM Schema - Noviembre 2025 - Optimizado para cotizaciones automáticas con IA y Evolution API';

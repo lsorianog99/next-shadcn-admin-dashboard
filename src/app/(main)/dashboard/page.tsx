@@ -1,26 +1,15 @@
-'use client';
+"use client";
 
-import { useDashboardMetrics } from '@/features/dashboard/hooks/use-dashboard-metrics';
-import { MetricCard } from '@/features/dashboard/components/metric-card';
-import { ConversationsChart } from '@/features/dashboard/components/conversations-chart';
-import { QuotesStatusChart } from '@/features/dashboard/components/quotes-status-chart';
-import { ProductsDistributionChart } from '@/features/dashboard/components/products-distribution-chart';
-import {
-  MessageSquare,
-  FileText,
-  CheckCircle,
-  TrendingUp,
-} from 'lucide-react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { MessageSquare, FileText, CheckCircle, TrendingUp } from "lucide-react";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ConversationsChart } from "@/features/dashboard/components/conversations-chart";
+import { MetricCard } from "@/features/dashboard/components/metric-card";
+import { ProductsDistributionChart } from "@/features/dashboard/components/products-distribution-chart";
+import { QuotesStatusChart } from "@/features/dashboard/components/quotes-status-chart";
+import { useDashboardMetrics } from "@/features/dashboard/hooks/use-dashboard-metrics";
 
 export default function DashboardPage() {
   const { data: metrics, isLoading } = useDashboardMetrics();
@@ -31,10 +20,8 @@ export default function DashboardPage() {
 
   if (!metrics) {
     return (
-      <div className="flex items-center justify-center h-[50vh]">
-        <p className="text-muted-foreground">
-          No se pudieron cargar las métricas
-        </p>
+      <div className="flex h-[50vh] items-center justify-center">
+        <p className="text-muted-foreground">No se pudieron cargar las métricas</p>
       </div>
     );
   }
@@ -42,9 +29,7 @@ export default function DashboardPage() {
   return (
     <div className="flex-1 space-y-6 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">
-          Dashboard - WhatsApp CRM
-        </h2>
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard - WhatsApp CRM</h2>
       </div>
 
       {/* Métricas Principales */}
@@ -113,28 +98,22 @@ export default function DashboardPage() {
                 {metrics.topSoldProducts.length > 0 ? (
                   metrics.topSoldProducts.map((product) => (
                     <TableRow key={product.sku}>
-                      <TableCell className="font-mono text-sm">
-                        {product.sku}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {product.name}
-                      </TableCell>
+                      <TableCell className="font-mono text-sm">{product.sku}</TableCell>
+                      <TableCell className="font-medium">{product.name}</TableCell>
                       <TableCell className="text-right">
-                        {new Intl.NumberFormat('es-MX').format(
-                          product.quantity
-                        )}
+                        {new Intl.NumberFormat("es-MX").format(product.quantity)}
                       </TableCell>
                       <TableCell className="text-right font-semibold">
-                        {new Intl.NumberFormat('es-MX', {
-                          style: 'currency',
-                          currency: 'MXN',
+                        {new Intl.NumberFormat("es-MX", {
+                          style: "currency",
+                          currency: "MXN",
                         }).format(product.revenue)}
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    <TableCell colSpan={4} className="text-muted-foreground text-center">
                       No hay productos vendidos aún
                     </TableCell>
                   </TableRow>
@@ -157,32 +136,22 @@ export default function DashboardPage() {
                 <TableHead>Posición</TableHead>
                 <TableHead>SKU</TableHead>
                 <TableHead>Producto</TableHead>
-                <TableHead className="text-right">
-                  Veces Cotizado
-                </TableHead>
+                <TableHead className="text-right">Veces Cotizado</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {metrics.topQuotedProducts.length > 0 ? (
                 metrics.topQuotedProducts.map((product, index) => (
                   <TableRow key={product.sku}>
-                    <TableCell className="font-semibold">
-                      #{index + 1}
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">
-                      {product.sku}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {product.name}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {new Intl.NumberFormat('es-MX').format(product.count)}
-                    </TableCell>
+                    <TableCell className="font-semibold">#{index + 1}</TableCell>
+                    <TableCell className="font-mono text-sm">{product.sku}</TableCell>
+                    <TableCell className="font-medium">{product.name}</TableCell>
+                    <TableCell className="text-right">{new Intl.NumberFormat("es-MX").format(product.count)}</TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground">
+                  <TableCell colSpan={4} className="text-muted-foreground text-center">
                     No hay productos cotizados aún
                   </TableCell>
                 </TableRow>
@@ -213,4 +182,3 @@ function DashboardSkeleton() {
     </div>
   );
 }
-

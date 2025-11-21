@@ -33,27 +33,27 @@ export function RegisterForm() {
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
       // Import dinámico del server action
-      const { registerWithEmail } = await import('@/actions/auth');
+      const { registerWithEmail } = await import("@/actions/auth");
 
       const result = await registerWithEmail(data.email, data.password);
 
       if (!result.success) {
-        toast.error('Error al crear la cuenta', {
+        toast.error("Error al crear la cuenta", {
           description: result.error,
         });
         return;
       }
 
       // Registro exitoso
-      toast.success('Cuenta creada exitosamente', {
+      toast.success("Cuenta creada exitosamente", {
         description: result.message,
       });
 
       // Limpiar el formulario
       form.reset();
     } catch (error) {
-      toast.error('Error al crear la cuenta', {
-        description: error instanceof Error ? error.message : 'Ocurrió un error inesperado',
+      toast.error("Error al crear la cuenta", {
+        description: error instanceof Error ? error.message : "Ocurrió un error inesperado",
       });
     }
   };

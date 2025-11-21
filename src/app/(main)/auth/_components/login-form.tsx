@@ -29,24 +29,24 @@ export function LoginForm() {
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
       // Import dinámico del server action
-      const { loginWithEmail } = await import('@/actions/auth');
+      const { loginWithEmail } = await import("@/actions/auth");
 
       const result = await loginWithEmail(data.email, data.password);
 
       if (result && !result.success) {
-        toast.error('Error al iniciar sesión', {
+        toast.error("Error al iniciar sesión", {
           description: result.error,
         });
         return;
       }
 
       // Si llegamos aquí, el login fue exitoso y el redirect se hace automáticamente
-      toast.success('Login exitoso', {
-        description: 'Redirigiendo al dashboard...',
+      toast.success("Login exitoso", {
+        description: "Redirigiendo al dashboard...",
       });
     } catch (error) {
-      toast.error('Error al iniciar sesión', {
-        description: error instanceof Error ? error.message : 'Ocurrió un error inesperado',
+      toast.error("Error al iniciar sesión", {
+        description: error instanceof Error ? error.message : "Ocurrió un error inesperado",
       });
     }
   };
