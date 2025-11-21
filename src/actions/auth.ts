@@ -55,8 +55,13 @@ export async function registerWithEmail(email: string, password: string, name?: 
 
 export async function logout() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
-  redirect("/auth/v2/login");
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
 }
 
 export async function getUser() {

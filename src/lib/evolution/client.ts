@@ -106,8 +106,9 @@ export const evolutionClient = {
       method: "POST",
       headers,
       body: JSON.stringify({
-        webhookUrl,
-        webhookByEvents,
+        url: webhookUrl,
+        webhook_by_events: webhookByEvents,
+        webhook_base64: false,
         events,
         enabled: true,
       }),
@@ -115,7 +116,8 @@ export const evolutionClient = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message ?? "Failed to set webhook");
+      console.error("Evolution API webhook error response:", error);
+      throw new Error(error.message ?? `Failed to set webhook: ${JSON.stringify(error)}`);
     }
   },
 

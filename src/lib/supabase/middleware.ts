@@ -47,6 +47,7 @@ export async function updateSession(request: NextRequest) {
     !user &&
     !request.nextUrl.pathname.startsWith("/auth") &&
     !request.nextUrl.pathname.startsWith("/api/webhooks") &&
+    !request.nextUrl.pathname.startsWith("/api/health") &&
     request.nextUrl.pathname !== "/"
   ) {
     // Redirigir a login si no está autenticado

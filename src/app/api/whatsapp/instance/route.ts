@@ -5,33 +5,50 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const { instanceName } = await request.json();
+    const body = await request.json();
+    const { instanceName } = body;
+
+    console.log("[API] POST /api/whatsapp/instance - Request body:", body);
 
     if (!instanceName) {
       return NextResponse.json({ error: "Instance name is required" }, { status: 400 });
     }
 
     // 1. Create instance in Evolution API
+    console.log(`[API] Creating instance in Evolution API: ${instanceName}`);
     const result = await evolutionClient.createInstance(instanceName);
+    console.log("[API] Evolution API response:", JSON.stringify(result, null, 2));
 
-    // 2. Save to DB
+    // 2. Save to DB (RLS will use the authenticated user from middleware)
     const supabase = await createClient();
-    const { error } = await supabase.from("whatsapp_instances").insert({
-      instance_name: instanceName,
-      instance_id: result.instance.instanceId,
-      status: "created",
-      api_key: result.hash.apikey,
-    });
+    console.log("[API] Saving instance to Supabase...");
 
-    if (error) throw error;
+    const { data: insertedData, error: dbError } = await supabase
+      .from("whatsapp_instances")
+      .insert({
+        instance_name: instanceName,
+        instance_id: result.instance.instanceId,
+        status: "created",
+        api_key: result.hash.apikey,
+      })
+      .select();
+
+    if (dbError) {
+      console.error("[API] Supabase insert error:", dbError);
+      throw dbError;
+    }
 
     console.log(`✅ Instance created: ${instanceName}`);
-    console.log(`   Webhook will be auto-configured after QR scan`);
+    console.log("✅ DB record:", insertedData);
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error("Error creating instance:", error);
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
+    console.error("❌ [API] Error creating instance:", error);
+    console.error("❌ [API] Error type:", typeof error);
+    console.error("❌ [API] Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 

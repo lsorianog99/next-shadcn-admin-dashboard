@@ -1,5 +1,9 @@
 "use client";
 
+import { useTransition } from "react";
+
+import { useRouter } from "next/navigation";
+
 import { EllipsisVertical, CircleUser, CreditCard, MessageSquareDot, LogOut } from "lucide-react";
 
 import { logout } from "@/actions/auth";
@@ -26,6 +30,17 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const handleLogout = () => {
+    startTransition(async () => {
+      const result = await logout();
+      if (result.success) {
+        window.location.href = "/auth/v2/login";
+      }
+    });
+  };
 
   return (
     <SidebarMenu>
@@ -81,9 +96,9 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={async () => await logout()}>
+            <DropdownMenuItem onClick={handleLogout} disabled={isPending}>
               <LogOut />
-              Log out
+              {isPending ? "Logging out..." : "Log out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

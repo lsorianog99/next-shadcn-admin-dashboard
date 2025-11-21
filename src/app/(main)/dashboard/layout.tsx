@@ -6,6 +6,7 @@ import { AppSidebar } from "@/app/(main)/dashboard/_components/sidebar/app-sideb
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { users } from "@/data/users";
+import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { getPreference } from "@/server/server-actions";
 import {
@@ -24,10 +25,29 @@ import { LayoutControls } from "./_components/sidebar/layout-controls";
 import { SearchDialog } from "./_components/sidebar/search-dialog";
 import { ThemeSwitcher } from "./_components/sidebar/theme-switcher";
 
-export default async function Layout({ children }: Readonly<{ children: ReactNode }>) {
-  const cookieStore = await cookies();
-  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
+// ... imports
 
+async function getUserData() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { name: "Usuario", email: "", avatar: "" };
+  }
+
+  const emailName = user.email?.split("@")[0];
+  const fullName = user.user_metadata?.full_name;
+
+  return {
+    name: fullName ?? emailName ?? "Usuario",
+    email: user.email ?? "",
+    avatar: user.user_metadata?.avatar_url ?? "",
+  };
+}
+
+async function getLayoutPreferences() {
   const [sidebarVariant, sidebarCollapsible, contentLayout, navbarStyle] = await Promise.all([
     getPreference<SidebarVariant>("sidebar_variant", SIDEBAR_VARIANT_VALUES, "inset"),
     getPreference<SidebarCollapsible>("sidebar_collapsible", SIDEBAR_COLLAPSIBLE_VALUES, "icon"),
@@ -35,16 +55,24 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
     getPreference<NavbarStyle>("navbar_style", NAVBAR_STYLE_VALUES, "scroll"),
   ]);
 
-  const layoutPreferences = {
-    contentLayout,
+  return {
     variant: sidebarVariant,
     collapsible: sidebarCollapsible,
+    contentLayout,
     navbarStyle,
   };
+}
+
+export default async function Layout({ children }: Readonly<{ children: ReactNode }>) {
+  const cookieStore = await cookies();
+  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
+
+  const [userData, preferences] = await Promise.all([getUserData(), getLayoutPreferences()]);
+  const { variant, collapsible, contentLayout, navbarStyle } = preferences;
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
-      <AppSidebar variant={sidebarVariant} collapsible={sidebarCollapsible} />
+      <AppSidebar variant={variant} collapsible={collapsible} user={userData} />
       <SidebarInset
         data-content-layout={contentLayout}
         className={cn(
@@ -69,7 +97,7 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
               <SearchDialog />
             </div>
             <div className="flex items-center gap-2">
-              <LayoutControls {...layoutPreferences} />
+              <LayoutControls {...preferences} />
               <ThemeSwitcher />
               <AccountSwitcher users={users} />
             </div>

@@ -3,6 +3,8 @@ import { ReactNode } from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
+import clsx from "clsx";
+
 import { Toaster } from "@/components/ui/sonner";
 import { APP_CONFIG } from "@/config/app-config";
 import { ReactQueryProvider } from "@/providers/react-query-provider";
@@ -30,7 +32,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       data-theme-preset={themePreset}
       suppressHydrationWarning
     >
-      <body className={`${inter.className} min-h-screen antialiased`}>
+      <body className={clsx(inter.className, "min-h-screen", "antialiased")} suppressHydrationWarning>
         <ReactQueryProvider>
           <PreferencesStoreProvider themeMode={themeMode} themePreset={themePreset}>
             {children}
