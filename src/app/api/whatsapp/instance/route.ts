@@ -14,23 +14,6 @@ export async function POST(request: NextRequest) {
     // 1. Create instance in Evolution API
     const result = await evolutionClient.createInstance(instanceName);
 
-    // 1.5 Configure Webhook (if APP_URL is set)
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-    if (appUrl && !appUrl.includes("localhost")) {
-      try {
-        await evolutionClient.setWebhook(instanceName, `${appUrl}/api/webhooks/evolution`, true, [
-          "MESSAGES_UPSERT",
-          "CONNECTION_UPDATE",
-        ]);
-        console.log(`Webhook configured for ${instanceName}`);
-      } catch (webhookError) {
-        console.error("Failed to configure webhook:", webhookError);
-        // Don't fail the whole request, just log it
-      }
-    } else {
-      console.warn("Skipping webhook setup: NEXT_PUBLIC_APP_URL is localhost or missing");
-    }
-
     // 2. Save to DB
     const supabase = await createClient();
     const { error } = await supabase.from("whatsapp_instances").insert({
@@ -41,6 +24,9 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) throw error;
+
+    console.log(`✅ Instance created: ${instanceName}`);
+    console.log(`   Webhook will be auto-configured after QR scan`);
 
     return NextResponse.json(result);
   } catch (error) {

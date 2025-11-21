@@ -75,8 +75,29 @@ export function InstanceOnboarding() {
         const data = await res.json();
 
         if (data?.instance?.state === "open") {
-          setStep("connected");
           clearInterval(interval);
+
+          // 🔥 AUTOMATICALLY CONFIGURE WEBHOOK
+          console.log("✅ Instance connected! Configuring webhook...");
+          try {
+            const webhookRes = await fetch("/api/whatsapp/webhook-config", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ instanceName }),
+            });
+
+            const webhookData = await webhookRes.json();
+            if (webhookRes.ok) {
+              console.log("✅ Webhook configured:", webhookData);
+            } else {
+              console.warn("⚠️ Webhook config failed:", webhookData.error);
+            }
+          } catch (webhookError) {
+            console.error("⚠️ Webhook config error:", webhookError);
+            // Don't fail the whole flow if webhook fails
+          }
+
+          setStep("connected");
           toast.success("WhatsApp Connected!");
         }
       } catch (e) {

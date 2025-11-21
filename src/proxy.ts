@@ -26,8 +26,9 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public files (images, etc)
-     * - api/webhooks (webhooks públicos de n8n)
+     * - api/webhooks (webhooks públicos de Evolution API)
+     * - api/whatsapp (API de WhatsApp - requiere autenticación en producción pero no en desarrollo)
      */
-    "/((?!_next/static|_next/image|favicon.ico|api/webhooks|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webm|mp4)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/webhooks|api/whatsapp|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webm|mp4)$).*)",
   ],
 };
